@@ -14,6 +14,8 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
+      - name: Print Version
+        run: echo ${GITHUB_REF/refs\/tags\//}
       - name: Publish package
         run: gradle publish
         env:
