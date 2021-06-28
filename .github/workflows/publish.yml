@@ -14,10 +14,11 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
-      - name: Print Version
-        run: echo ${GITHUB_REF/refs\/tags\//}
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - name: Publish package
         run: gradle publish
         env:
           TOKEN_GITHUB: ${{ secrets.TOKEN_GITHUB }}
-          VERSION: ${GITHUB_REF/refs\/tags\//}
+          VERSION: ${{ steps.get_version.outputs.VERSION }}
