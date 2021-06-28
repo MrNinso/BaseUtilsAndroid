@@ -15,6 +15,7 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
       - name: Publish package
-        run: gradle :BaseUtilsAndroid:publish
+        run: gradle publish
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          TOKEN_GITHUB: ${{ secrets.TOKEN_GITHUB }}
+          VERSION: ${GITHUB_REF/refs\/tags\//}
