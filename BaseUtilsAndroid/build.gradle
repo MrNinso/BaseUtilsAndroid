@@ -1,9 +1,15 @@
 plugins {
     id 'com.android.library'
-    id 'maven-publish'
+    id 'com.vanniktech.maven.publish'
+    id 'signing'
 }
 
-def mVersion = System.getenv('VERSION')
+ext {
+    isReleasedVersion = !project.version.endsWith("RC")
+}
+
+def ossrhUsername = System.getenv('MAVEN_USERNAME')
+def ossrhPassword = System.getenv('MAVEN_PASSWORD')
 
 android {
     compileSdkVersion 30
@@ -13,7 +19,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 30
         versionCode 1
-        versionName mVersion
+        versionName System.getenv('VERSION')
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -31,58 +37,17 @@ android {
     }
 }
 
-publishing {
-    publications {
-        bar(MavenPublication) {
-            groupId 'com.developer3.libs'
-            artifactId 'BaseUtilsAndroid'
-            version  mVersion
-            artifact("$buildDir/outputs/aar/BaseUtilsAndroid-debug.aar")
-
-            pom.withXml {
-                final dependenciesNode = asNode().appendNode('dependencies')
-                ext.addDependency = { Dependency dep, String scope ->
-                    if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
-                        return
-                    final dependencyNode = dependenciesNode.appendNode('dependency')
-                    dependencyNode.appendNode('groupId', dep.group)
-                    dependencyNode.appendNode('artifactId', dep.name)
-                    dependencyNode.appendNode('version', dep.version)
-                    dependencyNode.appendNode('scope', scope)
-                    if (!dep.transitive) {
-                        final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
-                        exclusionNode.appendNode('groupId', '*')
-                        exclusionNode.appendNode('artifactId', '*')
-                    } else if (!dep.properties.excludeRules.empty) {
-                        final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
-                        dep.properties.excludeRules.each { ExcludeRule rule ->
-                            exclusionNode.appendNode('groupId', rule.group ?: '*')
-                            exclusionNode.appendNode('artifactId', rule.module ?: '*')
-                        }
-                    }
-                }
-                configurations.compile.getDependencies().each { dep -> addDependency(dep, "compile") }
-                configurations.api.getDependencies().each { dep -> addDependency(dep, "compile") }
-                configurations.implementation.getDependencies().each { dep -> addDependency(dep, "runtime") }
-            }
-        }
-    }
-
-    repositories {
-        maven {
-            url = uri("https://maven.pkg.github.com/MrNinso/BaseUtilsAndroid")
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("TOKEN_GITHUB")
-            }
-        }
-    }
+tasks.withType(Javadoc) {
+    failOnError false
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+    options.addStringOption('charSet', 'UTF-8')
 }
 
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.3.0'
-    implementation 'com.google.android.material:material:1.3.0'
+    implementation 'com.google.android.material:material:1.4.0'
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation 'org.apache.commons:commons-lang3:3.12.0'
@@ -91,6 +56,6 @@ dependencies {
     implementation 'commons-codec:commons-codec:1.15'
 
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }

@@ -47,6 +47,9 @@ public class BaseRandom {
         return Math.abs(getRandomInt(max, min));
     }
 
+    /**
+     * @return A random Positive Int
+     */
     public int getRandomPositiveInt() {
         return getRandomPositiveInt(Integer.MAX_VALUE - 1, 0);
     }
