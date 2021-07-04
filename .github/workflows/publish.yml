@@ -43,4 +43,4 @@ jobs:
         run: sed -i 's/VERSION_NAME=0.0.0.RC/VERSION_NAME=${{ steps.get_version.outputs.VERSION }}/' gradle.properties
       #Publish project
       - name: Publish
-        run: ./gradlew publish -PossrhUsername=${{ secrets.OSSRH_USERNAME }} -PossrhPassword=${{ secrets.OSSRH_PASSWORD }} -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }} -Psigning.password= -Psigning.secretKeyRingFile=$(echo ~/.gradle/secring.gpg)
+        run: ./gradlew publish -PossrhUsername=${{ secrets.OSSRH_USERNAME }} -PossrhPassword=${{ secrets.OSSRH_PASSWORD }} -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }} -Psigning.password=${{ secrets.SIGNING_KEY_PASSWORD }} -Psigning.secretKeyRingFile=$(echo ~/.gradle/secring.gpg)
